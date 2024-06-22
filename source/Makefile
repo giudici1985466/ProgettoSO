@@ -10,4 +10,4 @@ test: main.o csv_managing.o
 	gcc -o test main.o csv_managing.o
 
 clean:
-	rm *.o test *.csv
+	rm *.o test ../record/*.csv
