@@ -1,0 +1,17 @@
+-Interfaccia per la scrittura e lettura su file (probabilmente csv, manipolabili come matrici)
+-"Database" e struttura
+-Flow dei dati 
+    1) Fare un campionamento ogni minuto per un'ora (60 valori)  ->Per avere le statistiche sull'ultima ora
+    2) Farne la media una volta ottenuti 24 valori (o man mano) ->Per avere le statistiche quotidiane
+    3) Farne la media una volta ottenuti 30 valori (o man mano) ->Per avere le statistiche mensili
+    4) Farne la media una volta ottenuti 12 valori (o man mano) ->Per avere le statistiche annuali
+Una cartella per anno
+Un file csv per mese 
+-Ogni riga è un giorno
+-Ogni colonna è un'orario
+-Interfaccia PC-Arduino per iniziare il campionamento dei dati (tramite un timer e un'interrupt)
+-Interfaccia (solo PC) per
+    +Visualizzare le statistiche (da determinare la granularità temporale minima)
+    +Eventualmente cancellare le statistiche (da determinare la granualrità temporale minima)
+-Interfaccia su atmega per la lettura dei dati del sensore
+
