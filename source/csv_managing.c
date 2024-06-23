@@ -11,6 +11,13 @@ void path_composer(char* path_buf,const char* nome);
 void csv_to_mat(FILE* file,int** mat,int num_righe);
 void mat_to_csv(FILE* file,int** mat,int num_righe);
 void free_mat(int** mat,int num_righe);
+int arr_mean(int* arr,int start,int end);
+void csv_to_arr(FILE* file,int* arr,int num_righe);
+void delete_csv(const char* nome);
+void init_csv(const char* nome,int righe);
+void print_csv(const char* nome);
+void insert_into_csv(const char* nome,int value,int giorno,int col);
+int csv_query_monthly(const char* nome, int pg, int ug, int po, int uo);
 
 
 void delete_csv(const char* nome){
@@ -148,7 +155,26 @@ void leggi_riga(FILE *file, char *buffer) {
     fgets(buffer,MAX_LEN_RIGA , file);
 }
 
-/*void csv_query_monthly(const char* nome, int pg, int ug, int po, int uo, int mode){
+int csv_query_monthly(const char* nome, int pg, int ug, int po, int uo){
+    if(ug<pg){
+        perror("Seleziona un range di giorni valido");
+    }
+    if(ug==pg){
+        if(uo<po){
+            perror("Seleziona un range orario valido");
+        }
+    }
+    int result=0;
+    int* arr;
+    int frow=pg-1;
+    printf("PRIMA RIGA: %d\n",frow);
+    int lrow=ug-1;
+    printf("ULTIMA RIGA: %d\n",lrow);
+    int fposition=(frow*24)+po;
+    printf("PRIMA POSIZIONE: %d\n",fposition);
+    int lposition=(lrow*24)+uo;
+    printf("ULTIMA POSIZIONE: %d\n", lposition);
+    
     int num_righe=0;
     char* path_buf=malloc(MAX_LEN_PATH);
     path_composer(path_buf,nome);
@@ -163,45 +189,22 @@ void leggi_riga(FILE *file, char *buffer) {
     
     num_righe=atoi((const char*)buffer);
 
-    if(ug<pg){
-        perror("Inserisci un range di giorni valido!\n");
-    }
+   
     
+    arr=(int*)malloc(num_righe*24*sizeof(int));
+    memset(arr,0,num_righe*24*sizeof(int));
+    csv_to_arr(file,arr,num_righe);
     
-    int** mat=malloc(num_righe*sizeof(int*));
-    for (int c1 = 0; c1 < num_righe; c1++) {        
-        mat[c1] = (int*) malloc(NUM_COLONNE * sizeof(int));
-        for (int c2 = 0; c2 < NUM_COLONNE; c2++) {
-            mat[c1][c2] = -1; 
-        }
-    }
+    fclose(file);
+   
 
-    for (int i = 0; i < num_righe; i++) {
-        memset(buffer,0,MAX_LEN_RIGA);
-        leggi_riga(file1,buffer);
-        char *token = strtok(buffer, ",");
-        int j = 0;
-        while (token != NULL && j < NUM_COLONNE) {
-            if((i==row) && (j==col)){
-                mat[i][j]=value;
-            }else{
-                mat[i][j]=atoi(token);
-            }
-            
-            token = strtok(NULL, ",");
-            j++;
-        }
-    }
-    fclose(file1);
+    result=arr_mean(arr,fposition,lposition);
+    return result;
+
 
 
 }
 
-
-void csv_query_annually(){
-
-}
-*/
 
 
 void csv_to_mat(FILE* file,int** mat,int num_righe){
@@ -211,7 +214,7 @@ void csv_to_mat(FILE* file,int** mat,int num_righe){
     for (int c1 = 0; c1 < num_righe; c1++) {        
         mat[c1] = (int*) malloc(NUM_COLONNE * sizeof(int));
         for (int c2 = 0; c2 < NUM_COLONNE; c2++) {
-            mat[c1][c2] = -1; 
+            mat[c1][c2] = INVALID_VALUE; 
         }
     }
 
@@ -229,6 +232,7 @@ void csv_to_mat(FILE* file,int** mat,int num_righe){
     free(buffer);
 }
 
+
 void mat_to_csv(FILE* file,int** mat,int num_righe){
     fprintf(file,"%d\n",num_righe);
     for(int c1=0;c1<num_righe;c1++){
@@ -243,10 +247,54 @@ void mat_to_csv(FILE* file,int** mat,int num_righe){
 
 }
 
+void csv_to_arr(FILE* file,int* arr,int num_righe){
+    char* buffer=(char*)malloc(MAX_LEN_RIGA);
+    int positions=num_righe*24;
+    memset(arr,0,positions*sizeof(int));
+    int j = 0;
+    
+    for (int i = 0; i < num_righe; i++) {
+        memset(buffer,0,MAX_LEN_RIGA);
+        leggi_riga(file,buffer);
+        char *token = strtok(buffer, ",");
+        
+        while (token != NULL && j < positions) {
+            arr[j]=atoi(token);
+            printf("VALORE INSERITO NELL'ARRAY: %d IN POSIZIONE %d\n",arr[j],j);
+            token = strtok(NULL, ",");
+            j++;
+        }
+    }
+    free(buffer);
+
+}
+
 void free_mat(int** mat,int num_righe){
     for(int i = 0; i < num_righe; i++){
         free(mat[i]);
     }
     free(mat);
+}
+
+
+int arr_mean(int* arr,int start,int end){
+    int flag=1;
+    int result=-1;
+    int num_values=0;
+    for(int c1=start; c1<end ;c1++){
+        if(arr[c1]!=INVALID_VALUE){
+            if(flag==1){
+                flag=0;
+                result=0;
+            }
+            result+=arr[c1];
+            num_values++;
+        }
+    }
+    if(num_values!=0){
+        result=result/num_values;
+    }
+    
+    return result;
 }
 

@@ -7,6 +7,7 @@
 #define MAX_VALUE_LEN 5
 #define INIT_VALUE_CSV -1
 #define CSV_EXTENSION ".csv"
+#define INVALID_VALUE -1
 
 
 void init_csv(const char* nome,int righe);
